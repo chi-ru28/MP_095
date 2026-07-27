@@ -1,0 +1,38 @@
+openapi: 3.0.0
+info:
+  title: Ascendra API Gateway
+  description: Node.js Backend API for Ascendra Game
+  version: 1.0.0
+servers:
+  - url: /api/v1
+    description: v1 API
+
+paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      description: Returns the status of the API
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                        example: OK
+                      timestamp:
+                        type: string
+                        format: date-time
+                  error:
+                    type: object
+                    nullable: true
+                    example: null
