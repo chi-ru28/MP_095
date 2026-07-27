@@ -207,7 +207,7 @@ ascendra/
 │   └── src/               # Application source code
 ├── docs/                  # Global architecture & design documents
 ├── packages/              # Shared types, linting, and utilities
-└── web-frontend/          # React + Vite Web Hub
+└── frontend/          # React + Vite Web Hub
 ```
 
 ---
@@ -251,7 +251,7 @@ python -m venv venv
 source venv/bin/activate  # On Windows: .\venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 
-cd ../web-frontend
+cd ../frontend
 npm install
 ```
 
@@ -267,7 +267,7 @@ npm install
 
 2. **Install Web Frontend**:
    ```bash
-   cd web-frontend
+   cd frontend
    npm install
    ```
 
@@ -340,7 +340,7 @@ uvicorn main:app --reload
 
 **React Frontend**:
 ```bash
-cd web-frontend
+cd frontend
 npm run dev
 ```
 
