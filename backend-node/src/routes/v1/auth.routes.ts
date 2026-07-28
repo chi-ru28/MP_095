@@ -1,27 +1,33 @@
 import { Router } from 'express';
-import { AuthController } from '../../api/controllers/auth.controller';
+import { AuthController } from '../controllers/auth.controller';
+import { requireAuth } from '../../middleware/auth.middleware';
+import { validateRequest } from '../../middleware/validate.middleware';
+import { z } from 'zod';
 
 const router = Router();
 
-/**
- * @swagger
- * /auth/google:
- *   post:
- *     summary: Login with Google
- *     description: Exchanges a Google OAuth token for an Ascendra JWT
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               google_token:
- *                 type: string
- *     responses:
- *       200:
- *         description: Successful login
- */
-router.post('/google', AuthController.loginWithGoogle);
+const googleAuthSchema = z.object({
+  body: z.object({
+    google_token: z.string({ required_error: 'google_token is required' }).min(1),
+  }),
+});
+
+const refreshSchema = z.object({
+  body: z.object({
+    refreshToken: z.string().optional(), // Could be in cookie
+  }),
+});
+
+// POST /api/v1/auth/google
+router.post('/google', validateRequest(googleAuthSchema), AuthController.loginWithGoogle);
+
+// POST /api/v1/auth/refresh
+router.post('/refresh', validateRequest(refreshSchema), AuthController.refresh);
+
+// POST /api/v1/auth/logout
+router.post('/logout', requireAuth, AuthController.logout);
+
+// GET /api/v1/auth/me
+router.get('/me', requireAuth, AuthController.getCurrentUser);
 
 export default router;

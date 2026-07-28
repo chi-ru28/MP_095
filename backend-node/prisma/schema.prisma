@@ -4,39 +4,65 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
   id         String   @id @default(uuid()) @db.Uuid
-  google_id  String   @unique
-  username   String   @unique
   email      String   @unique
-  xp         Int      @default(0)
-  coins      Int      @default(0)
-  rank_id    String?  @db.Uuid
-  created_at DateTime @default(now())
-  last_login DateTime @default(now())
+  username   String   @unique
+  fullName   String?
+  avatar     String?
+  provider   String   @default("google")
+  googleId   String?  @unique @map("google_id")
+  role       String   @default("USER")
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
 
-  // Relations
-  profile   Profile?
-  rank      Rank?         @relation(fields: [rank_id], references: [id])
-  tasks     TaskHistory[]
-  inventory Inventory[]
+  // Existing relations to preserve
+  rank_id    String?  @db.Uuid
+  profile    Profile?
+  rank       Rank?         @relation(fields: [rank_id], references: [id])
+  tasks      TaskHistory[]
+  inventory  Inventory[]
+  refreshTokens RefreshToken[]
 
   @@index([username])
-  @@index([google_id])
+  @@index([googleId])
 }
 
 model Profile {
-  user_id          String @id @db.Uuid
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @unique @map("user_id") @db.Uuid
+  xp         Int      @default(0)
+  coins      Int      @default(0)
+  level      Int      @default(1)
+  rank       String?
+  streak     Int      @default(0)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  
+  // Existing fields we might want to keep
   avatar_config    Json   @default("{}")
   current_planet   String @default("Hub")
-  streak           Int    @default(0)
   confidence_score Float  @default(0.5)
 
   // Relations
-  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model RefreshToken {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  token      String   @unique
+  expiresAt  DateTime @map("expires_at")
+  revoked    Boolean  @default(false)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
 }
 
 model Rank {

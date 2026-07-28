@@ -7,11 +7,22 @@ servers:
   - url: /api/v1
     description: v1 API
 
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []
+
 paths:
   /health:
     get:
       summary: Health check endpoint
-      description: Returns the status of the API
+      description: Returns the status of the API, DB, and Redis
+      security: []
       responses:
         '200':
           description: Successful response
@@ -26,13 +37,91 @@ paths:
                   data:
                     type: object
                     properties:
-                      status:
+                      apiStatus:
                         type: string
-                        example: OK
+                        example: ok
+                      dbStatus:
+                        type: string
+                        example: ok
+                      redisStatus:
+                        type: string
+                        example: ok
+                      version:
+                        type: string
+                        example: 1.0.0
                       timestamp:
                         type: string
                         format: date-time
-                  error:
+        '503':
+          description: Service Unavailable
+
+  /auth/google:
+    post:
+      summary: Login with Google
+      description: Exchange a Google ID token for Ascendra JWT tokens
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - google_token
+              properties:
+                google_token:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
                     type: object
-                    nullable: true
-                    example: null
+                    properties:
+                      user:
+                        type: object
+                      accessToken:
+                        type: string
+
+  /auth/refresh:
+    post:
+      summary: Refresh Auth Tokens
+      description: Get a new access token using a refresh token (via body or cookie)
+      security: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: Tokens refreshed successfully
+
+  /auth/logout:
+    post:
+      summary: Logout
+      description: Revoke the current refresh token
+      responses:
+        '200':
+          description: Logged out successfully
+
+  /auth/me:
+    get:
+      summary: Get Current User
+      description: Returns the currently authenticated user's payload
+      responses:
+        '200':
+          description: User retrieved successfully
+        '401':
+          description: Unauthorized

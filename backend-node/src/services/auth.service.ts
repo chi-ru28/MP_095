@@ -1,82 +1,58 @@
-import { OAuth2Client } from 'google-auth-library';
-import jwt from 'jsonwebtoken';
-import { prisma } from '../infrastructure/database/prisma';
+import { GoogleOAuthService } from './googleOAuth.service';
+import { UserService } from './user.service';
+import { TokenService } from './token.service';
+import { JWTService } from './jwt.service';
 import { AppError } from '../domain/exceptions/AppError';
-
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-for-dev-only';
+import { logger } from '../infrastructure/logging/logger';
 
 export class AuthService {
-  /**
-   * Verifies Google token, finds or creates a User and Profile, and returns a JWT.
-   */
   static async loginWithGoogle(googleToken: string) {
-    try {
-      const ticket = await client.verifyIdToken({
-        idToken: googleToken,
-        audience: process.env.GOOGLE_CLIENT_ID,
-      });
+    logger.info('Starting Google Login flow');
+    const { googleId, email, name, avatar } = await GoogleOAuthService.verifyToken(googleToken);
+    
+    const user = await UserService.findOrCreateGoogleUser(googleId, email, name, avatar);
+    
+    const tokens = await TokenService.generateAuthTokens(user.id, user.role);
+    
+    logger.info(`User ${user.id} logged in successfully`);
 
-      const payload = ticket.getPayload();
-      if (!payload || !payload.email || !payload.sub) {
-        throw new AppError('Invalid Google Token', 400, 'AUTH_INVALID_TOKEN');
+    return {
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        avatar: user.avatar,
+      },
+      tokens,
+    };
+  }
+
+  static async refreshTokens(refreshToken: string) {
+    try {
+      const payload = JWTService.verifyRefreshToken(refreshToken);
+      const { userId, role } = payload;
+
+      const isValid = await TokenService.isRefreshTokenValid(userId, refreshToken);
+      if (!isValid) {
+        throw new AppError('Invalid or revoked refresh token', 401, 'AUTH_INVALID_REFRESH_TOKEN');
       }
 
-      const { sub: googleId, email, name } = payload;
-      let username = name || email.split('@')[0];
+      // Refresh token rotation: revoke old, create new
+      await TokenService.revokeRefreshToken(userId, refreshToken);
+      const newTokens = await TokenService.generateAuthTokens(userId, role);
 
-      // Use a Prisma transaction to ensure User and Profile are created together
-      const user = await prisma.$transaction(async (tx) => {
-        let existingUser = await tx.user.findUnique({
-          where: { google_id: googleId },
-        });
-
-        if (existingUser) {
-          // Update last_login
-          return tx.user.update({
-            where: { id: existingUser.id },
-            data: { last_login: new Date() },
-          });
-        }
-
-        // Handle unique username collision simple fallback
-        const usernameExists = await tx.user.findUnique({ where: { username } });
-        if (usernameExists) {
-          username = `${username}_${Math.floor(Math.random() * 10000)}`;
-        }
-
-        // Create new user and profile
-        return tx.user.create({
-          data: {
-            google_id: googleId,
-            email,
-            username,
-            profile: {
-              create: {}, // Use defaults
-            },
-          },
-        });
-      });
-
-      // Generate Ascendra JWT
-      const token = jwt.sign(
-        { userId: user.id, username: user.username },
-        JWT_SECRET,
-        { expiresIn: '7d' }
-      );
-
-      return {
-        token,
-        user: {
-          id: user.id,
-          username: user.username,
-          xp: user.xp,
-          coins: user.coins,
-        },
-      };
+      logger.info(`Tokens refreshed for user ${userId}`);
+      
+      return newTokens;
     } catch (error) {
       if (error instanceof AppError) throw error;
-      throw new AppError('Google Authentication Failed', 401, 'AUTH_FAILED');
+      throw new AppError('Invalid refresh token', 401, 'AUTH_INVALID_REFRESH_TOKEN');
     }
+  }
+
+  static async logout(userId: string, refreshToken: string) {
+    await TokenService.revokeRefreshToken(userId, refreshToken);
+    logger.info(`User ${userId} logged out`);
   }
 }

@@ -1,24 +1,29 @@
 import { prisma } from '../infrastructure/database/prisma';
+import { Prisma } from '@prisma/client';
 
 export class UserRepository {
-  static async getUserProfile(userId: string) {
+  static async findById(id: string) {
     return prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        profile: true,
-        inventory: {
-          include: {
-            item: true,
-          },
-        },
-      },
+      where: { id },
+      include: { profile: true },
     });
   }
 
-  static async updateAvatar(userId: string, avatarConfig: any) {
-    return prisma.profile.update({
-      where: { user_id: userId },
-      data: { avatar_config: avatarConfig },
+  static async findByGoogleId(googleId: string) {
+    return prisma.user.findUnique({
+      where: { googleId },
+    });
+  }
+
+  static async findByUsername(username: string) {
+    return prisma.user.findUnique({
+      where: { username },
+    });
+  }
+
+  static async create(data: Prisma.UserCreateInput) {
+    return prisma.user.create({
+      data,
     });
   }
 }
