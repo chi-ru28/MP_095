@@ -17,6 +17,8 @@ node_modules
 /dist
 
 # misc
+*.db
+*.sqlite
 .DS_Store
 *.pem
 

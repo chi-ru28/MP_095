@@ -98,7 +98,7 @@ export default function Login() {
           </form>
 
           <div className={styles.links}>
-            <span className={styles.link}>Forgot Password?</span>
+            <span className={styles.link} onClick={() => navigate('/forgot-password')}>Forgot Password?</span>
             <span className={styles.link} onClick={() => navigate('/register')}>Create New Account</span>
           </div>
         </GlassCard>

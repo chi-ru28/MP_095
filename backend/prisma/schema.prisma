@@ -3,11 +3,12 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id         String   @id @default(uuid()) @db.Uuid
+  id         String   @id @default(uuid())
   email      String   @unique
   username   String   @unique
   fullName   String?
@@ -20,7 +21,7 @@ model User {
   updatedAt  DateTime @updatedAt @map("updated_at")
 
   // Existing relations to preserve
-  rank_id    String?  @db.Uuid
+  rank_id    String?
   profile    Profile?
   rank       Rank?         @relation(fields: [rank_id], references: [id])
   tasks      TaskHistory[]
@@ -32,8 +33,8 @@ model User {
 }
 
 model Profile {
-  id         String   @id @default(uuid()) @db.Uuid
-  userId     String   @unique @map("user_id") @db.Uuid
+  id         String   @id @default(uuid())
+  userId     String   @unique @map("user_id")
   xp         Int      @default(0)
   coins      Int      @default(0)
   level      Int      @default(1)
@@ -43,7 +44,7 @@ model Profile {
   updatedAt  DateTime @updatedAt @map("updated_at")
   
   // Existing fields we might want to keep
-  avatar_config    Json   @default("{}")
+  avatar_config    String @default("{}")
   current_planet   String @default("Hub")
   confidence_score Float  @default(0.5)
 
@@ -52,8 +53,8 @@ model Profile {
 }
 
 model RefreshToken {
-  id         String   @id @default(uuid()) @db.Uuid
-  userId     String   @map("user_id") @db.Uuid
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
   token      String   @unique
   expiresAt  DateTime @map("expires_at")
   revoked    Boolean  @default(false)
@@ -66,7 +67,7 @@ model RefreshToken {
 }
 
 model Rank {
-  id        String @id @default(uuid()) @db.Uuid
+  id        String @id @default(uuid())
   name      String @unique
   min_score Int
 
@@ -75,8 +76,8 @@ model Rank {
 }
 
 model TaskHistory {
-  id             String   @id @default(uuid()) @db.Uuid
-  user_id        String   @db.Uuid
+  id             String   @id @default(uuid())
+  user_id        String
   category       String
   difficulty     String
   time_allocated Int
@@ -92,7 +93,7 @@ model TaskHistory {
 }
 
 model Item {
-  id     String @id @default(uuid()) @db.Uuid
+  id     String @id @default(uuid())
   name   String
   type   String // Cosmetic, Relic, Title
   rarity String
@@ -102,8 +103,8 @@ model Item {
 }
 
 model Inventory {
-  user_id     String   @db.Uuid
-  item_id     String   @db.Uuid
+  user_id     String
+  item_id     String
   quantity    Int      @default(1)
   acquired_at DateTime @default(now())
 
@@ -113,3 +114,15 @@ model Inventory {
 
   @@id([user_id, item_id])
 }
+
+model ResetOTP {
+  id         String   @id @default(uuid())
+  email      String
+  otp        String
+  expiresAt  DateTime @map("expires_at")
+  used       Boolean  @default(false)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([email])
+}
+

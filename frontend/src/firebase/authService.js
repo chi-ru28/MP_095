@@ -93,3 +93,49 @@ export const logoutUser = async () => {
     return { success: false, error: error.message };
   }
 };
+
+const API_BASE_URL = 'http://localhost:5000/api/v1';
+
+export const sendForgotPasswordOTP = async (email) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to send OTP');
+    }
+    
+    // Developer convenience: If the backend simulated the OTP, return it
+    const devOtp = data.data && data.data.devOtp ? data.data.devOtp : null;
+
+    return { success: true, error: null, devOtp };
+  } catch (error) {
+    console.error("Forgot Password Error:", error);
+    return { success: false, error: error.message };
+  }
+};
+
+export const resetPasswordWithOTP = async (email, otp, newPassword) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, otp, newPassword }),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to reset password');
+    }
+    return { success: true, error: null };
+  } catch (error) {
+    console.error("Reset Password Error:", error);
+    return { success: false, error: error.message };
+  }
+};

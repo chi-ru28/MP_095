@@ -51,4 +51,24 @@ export class AuthController {
     const user = (req as any).user;
     res.json(ResponseFormatter.success({ user }));
   }
+
+  static async forgotPassword(req: Request, res: Response) {
+    const { email } = req.body;
+    if (!email) {
+      res.status(400).json(ResponseFormatter.error('Email is required', 400));
+      return;
+    }
+    const result = await AuthService.forgotPassword(email);
+    res.json(ResponseFormatter.success(result));
+  }
+
+  static async resetPassword(req: Request, res: Response) {
+    const { email, otp, newPassword } = req.body;
+    if (!email || !otp || !newPassword) {
+      res.status(400).json(ResponseFormatter.error('Email, OTP, and new password are required', 400));
+      return;
+    }
+    const result = await AuthService.resetPassword(email, otp, newPassword);
+    res.json(ResponseFormatter.success(result));
+  }
 }

@@ -24,7 +24,9 @@ export const rateLimiter = (limit: number = 100, windowSec: number = 60) => {
 
       next();
     } catch (error) {
-      next(error);
+      // If Redis fails, log it and bypass the rate limiter
+      console.warn('Redis rate limiter failed, bypassing...', (error as any).message);
+      next();
     }
   };
 };
