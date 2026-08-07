@@ -1,8 +1,10 @@
 import dotenv from 'dotenv';
 import { logger } from '../infrastructure/logging/logger';
+import { initializeFirebase } from '../shared/utils/firebase';
 import app from './app';
 
 dotenv.config();
+initializeFirebase();
 
 const PORT = process.env.PORT || 3000;
 

@@ -6,6 +6,7 @@ import { AppError } from '../domain/exceptions/AppError';
 import { logger } from '../infrastructure/logging/logger';
 import { prisma } from '../infrastructure/database/prisma';
 import { sendOTP } from '../shared/utils/email';
+import { getAuth } from '../shared/utils/firebase';
 
 export class AuthService {
   static async loginWithGoogle(googleToken: string) {
@@ -104,12 +105,22 @@ export class AuthService {
       data: { used: true }
     });
 
-    // In a real app, update Firebase password here
-    // const admin = require('firebase-admin');
-    // const firebaseUser = await admin.auth().getUserByEmail(email);
-    // await admin.auth().updateUser(firebaseUser.uid, { password: newPassword });
+    // Update Firebase password
+    const auth = getAuth();
+    if (auth) {
+      try {
+        const firebaseUser = await auth.getUserByEmail(email);
+        await auth.updateUser(firebaseUser.uid, { password: newPassword });
+        logger.info(`Password reset successfully in Firebase for ${email}`);
+      } catch (error: any) {
+        logger.error(`Failed to update password in Firebase: ${error.message}`);
+        throw new AppError('Failed to update password in Firebase', 500, 'FIREBASE_ERROR');
+      }
+    } else {
+      logger.warn(`Firebase Admin SDK not initialized. Password for ${email} was NOT updated in Firebase.`);
+      throw new AppError('Server misconfiguration: Firebase Admin SDK not initialized', 500, 'SERVER_ERROR');
+    }
     
-    logger.info(`Password reset successfully for ${email}. (Firebase Admin SDK required to actually apply this to Firebase)`);
     return { message: 'Password reset successfully' };
   }
 }
