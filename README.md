@@ -84,6 +84,8 @@ Players earn XP, Coins, Achievements, and Knowledge Crystals, unlocking new plan
 - PostgreSQL & Prisma integration
 - Google OAuth authentication & JWT issuance
 - Redis rate limiting and caching
+- Custom SMTP-based 5-digit OTP Password Recovery
+- Modular Firebase Admin SDK Integration
 
 ### 🔄 In Progress
 - LangGraph AI Engine (FastAPI)
@@ -121,6 +123,7 @@ Players earn XP, Coins, Achievements, and Knowledge Crystals, unlocking new plan
 <br>
 
 - **Google OAuth**: Frictionless, secure onboarding.
+- **Custom Password Recovery**: Secure 5-digit OTP via SMTP with fallback Firebase Admin password syncing.
 - **Stateless JWT**: Secure API authorization.
 - **Anti-Cheat Mechanics**: Focus-loss detection and server-side validation.
 - **Rate Limiting**: Redis-backed token bucket to protect endpoints.
