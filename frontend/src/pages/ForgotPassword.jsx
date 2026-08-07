@@ -184,14 +184,46 @@ export default function ForgotPassword() {
                   background: 'rgba(168, 85, 247, 0.1)',
                   border: '1px solid rgba(168, 85, 247, 0.3)',
                   borderRadius: '8px',
-                  padding: '12px',
+                  padding: '12px 16px',
                   marginBottom: '20px',
-                  textAlign: 'center',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
                   color: '#e9d5ff',
                   fontSize: '14px'
                 }}>
-                  <span style={{ opacity: 0.8 }}>Dev Mode OTP: </span>
-                  <span style={{ fontWeight: 'bold', letterSpacing: '2px', fontSize: '16px', color: '#fff' }}>{devOtpCode}</span>
+                  <div>
+                    <span style={{ opacity: 0.8 }}>Dev Mode OTP: </span>
+                    <span style={{ fontWeight: 'bold', letterSpacing: '2px', fontSize: '16px', color: '#fff' }}>{devOtpCode}</span>
+                  </div>
+                  <button 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setOtpDigits(devOtpCode.split(''));
+                      setOtp(devOtpCode);
+                    }}
+                    style={{
+                      background: 'rgba(168, 85, 247, 0.2)',
+                      color: '#d8b4fe',
+                      border: '1px solid rgba(168, 85, 247, 0.4)',
+                      padding: '6px 16px',
+                      borderRadius: '6px',
+                      fontWeight: '600',
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseOver={(e) => {
+                      e.target.style.background = 'rgba(168, 85, 247, 0.4)';
+                      e.target.style.color = '#fff';
+                    }}
+                    onMouseOut={(e) => {
+                      e.target.style.background = 'rgba(168, 85, 247, 0.2)';
+                      e.target.style.color = '#d8b4fe';
+                    }}
+                  >
+                    Fill
+                  </button>
                 </div>
               )}
 
