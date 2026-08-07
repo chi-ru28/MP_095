@@ -1,0 +1,17 @@
+{
+  "auth": {
+    "authorizedDomains": [
+      "localhost",
+      "127.0.0.1",
+      "ascendra-65af1.firebaseapp.com"
+    ],
+    "providers": {
+      "anonymous": false,
+      "emailPassword": true,
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "ASCENDRA",
+        "supportEmail": "patelruchi2830@gmail.com"
+      }
+    }
+  }
+}

@@ -1,0 +1,72 @@
+.btn {
+  position: relative;
+  overflow: hidden;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding: 16px 32px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.primary {
+  color: white;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border-highlight);
+  box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
+}
+
+.primary:hover {
+  box-shadow: 0 0 25px var(--color-primary-glow);
+}
+
+.gold {
+  color: white;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border-gold);
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+}
+
+.gold:hover {
+  box-shadow: 0 0 25px var(--color-accent-glow);
+}
+
+.ghost {
+  color: var(--color-text-muted);
+  background: transparent;
+  padding: 8px 16px;
+}
+
+.ghost:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.content {
+  position: relative;
+  z-index: 10;
+}
+
+.shimmer {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: all 0.5s;
+}
+
+.btn:hover .shimmer {
+  left: 100%;
+  transition: all 0.5s;
+}

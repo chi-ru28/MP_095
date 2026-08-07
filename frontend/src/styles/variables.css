@@ -1,0 +1,20 @@
+:root {
+  --color-primary: #00d2ff;
+  --color-primary-glow: rgba(0, 210, 255, 0.6);
+  --color-secondary: #3a7bd5;
+  --color-accent: #ffd700; /* Gold */
+  --color-accent-glow: rgba(255, 215, 0, 0.6);
+  
+  --color-background-dark: #0a0a1a;
+  --color-text-main: #ffffff;
+  --color-text-muted: #a0a0b0;
+  
+  --glass-bg: rgba(10, 15, 30, 0.4);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-border-highlight: rgba(0, 210, 255, 0.3);
+  --glass-border-gold: rgba(255, 215, 0, 0.4);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  
+  --font-fantasy: 'Cinzel Decorative', cursive;
+  --font-sans: 'Inter', sans-serif;
+}
